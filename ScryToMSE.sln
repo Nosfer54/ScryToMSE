@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScryToMSE", "ScryToMSE.csproj", "{319676FE-4CFD-4E56-931C-00EE7F27D44D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScryToMSETests", "ScryToMSETests\ScryToMSETests.csproj", "{ADBFB82A-B736-4E69-9388-C798D1D6B152}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{319676FE-4CFD-4E56-931C-00EE7F27D44D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{319676FE-4CFD-4E56-931C-00EE7F27D44D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{319676FE-4CFD-4E56-931C-00EE7F27D44D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{319676FE-4CFD-4E56-931C-00EE7F27D44D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADBFB82A-B736-4E69-9388-C798D1D6B152}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADBFB82A-B736-4E69-9388-C798D1D6B152}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADBFB82A-B736-4E69-9388-C798D1D6B152}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADBFB82A-B736-4E69-9388-C798D1D6B152}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3E6012B-CD72-4BF4-ACF3-C1BF168D32CA}
+	EndGlobalSection
+EndGlobal
