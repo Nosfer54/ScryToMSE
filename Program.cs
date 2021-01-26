@@ -146,71 +146,56 @@ namespace ScryToMSE
         {
             Console.WriteLine(num);
             WebClient client = new WebClient();
-            //Encoding utf8 = Encoding.GetEncoding("UTF-8");
-            //Encoding win1251 = Encoding.GetEncoding(1251);
-            //byte[] utf8Bytes;
-            //byte[] win1251Bytes;
-            Card res = JsonConvert.DeserializeObject<Card>(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/" + lang));
+            Card res = new Card();
 
             try
             {
-             //   utf8Bytes = win1251.GetBytes(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/" + lang));
-                //win1251Bytes = Encoding.Convert(utf8, win1251, utf8Bytes);
-                //res = JsonConvert.DeserializeObject<Card>(win1251.GetString(win1251Bytes));
-                res = JsonConvert.DeserializeObject<Card>(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/" + lang));
+                res = JsonConvert.DeserializeObject<Card>(Encoding.UTF8.GetString(
+                    Encoding.Default.GetBytes(
+                        client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/" + lang))));
             }
             catch (WebException)
             {
-               // utf8Bytes = win1251.GetBytes(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num));
-               // win1251Bytes = Encoding.Convert(utf8, win1251, utf8Bytes);
-                //res = JsonConvert.DeserializeObject<Card>(win1251.GetString(win1251Bytes));
-                
+                res = JsonConvert.DeserializeObject<Card>(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num));
+
                 try
                 {
-                  //  utf8Bytes = win1251.GetBytes(client.DownloadString("https://api.scryfall.com/cards/search?q=" + res.name.Replace(" ", "%20") + "%20lang%3Arussian"));
-                   // win1251Bytes = Encoding.Convert(utf8, win1251, utf8Bytes);
-
-                    //foreach (Card c in JsonConvert.DeserializeObject<List>(win1251.GetString(win1251Bytes)).data)
-                      //  if (c.oracle_id == res.oracle_id)
-                        //{
-                         //   res.printed_name = c.printed_name;
-                          //  res.printed_text = c.printed_text;
-                          //  res.flavor_text = c.flavor_text;
-                          //  res.printed_type_line = c.printed_type_line;
-                          //  res.card_faces = c.card_faces;
-                          //  res.lang = c.lang;
-                       // }
+                    var tmp = JsonConvert.DeserializeObject<List>(Encoding.UTF8.GetString(
+                        Encoding.Default.GetBytes(
+                            client.DownloadString("https://api.scryfall.com/cards/search?q=" + res.name.Replace(" ", "%20") + "%20lang%3Arussian")
+                        )));
+                    
+                    foreach (Card c in tmp.data)
+                        if (c.oracle_id == res.oracle_id)
+                        {
+                            res.printed_name = c.printed_name;
+                            res.printed_text = c.printed_text;
+                            res.flavor_text = c.flavor_text;
+                            res.printed_type_line = c.printed_type_line;
+                            res.card_faces = c.card_faces;
+                            res.lang = c.lang;
+                        }
                 }
                 catch (WebException)
                 {
-                    Console.WriteLine("Будет английская");
-                    //Console.WriteLine("https://api.scryfall.com/cards/search?q=" + res.name.Replace(" ", "%20") + "%20lang%3Arussian");
+                    Console.WriteLine("Будет английская");                   
                 }
             }
-            /*
+
+            var enRes = JsonConvert.DeserializeObject<Card>(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num));
+
             switch (res.layout)
             {
-                case "modal_dfc":
-                    //utf8Bytes = win1251.GetBytes(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/en"));
-                    //win1251Bytes = Encoding.Convert(utf8, win1251, utf8Bytes);
-                    //res.card_faces[0].download_url = JsonConvert.DeserializeObject<Card>(win1251.GetString(win1251Bytes)).card_faces[0].image_uris.art_crop;
+                case "modal_dfc":                    
+                    res.card_faces[0].download_url = enRes.card_faces[0].image_uris.art_crop;
                     res.card_faces[0].image_name = res.collector_number + "a";
-                    //res.card_faces[1].download_url = JsonConvert.DeserializeObject<Card>(win1251.GetString(win1251Bytes)).card_faces[1].image_uris.art_crop;
+                    res.card_faces[1].download_url = enRes.card_faces[1].image_uris.art_crop;
                     res.card_faces[1].image_name = res.collector_number + "b";
                     break;
                 default:
-                    if (lang != "en")
-                    {
-                      //  utf8Bytes = win1251.GetBytes(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/en"));
-                        //win1251Bytes = Encoding.Convert(utf8, win1251, utf8Bytes);
-                        //res.download_url = JsonConvert.DeserializeObject<Card>(win1251.GetString(win1251Bytes)).image_uris.art_crop;
-                    }
-                    else
-                        res.download_url = res.image_uris.art_crop;
+                    res.download_url = enRes.image_uris.art_crop;
                     break;
-            }*/
-            //Console.WriteLine(client.DownloadString("https://api.scryfall.com/cards/" + setCode.ToLower() + "/" + num + "/" + lang));
-            //Console.WriteLine(res.name);
+            }
             return res;
         }
 
@@ -253,6 +238,8 @@ namespace ScryToMSE
                 }
             return res;
         }
+
+
 
         static String GetStyleCardString(Card card)
         {
@@ -471,8 +458,6 @@ namespace ScryToMSE
         static String GetRuleTextString(Card card)
         {
             String rule = "";
-            Console.WriteLine(card.type_line);
-            Console.WriteLine(card.printed_name);
             switch (card.layout)
             {
                 case "modal_dfc":
@@ -701,9 +686,9 @@ namespace ScryToMSE
         public static String GetNumberOfSet(int number, int maxSetCard)
         {
             if (number <= maxSetCard)
-                return maxSetCard > 10 ? number.ToString("000") + "/" + maxSetCard.ToString("000") : number.ToString("00") + "/" + maxSetCard.ToString("00");            
+                return maxSetCard > 99 ? number.ToString("000") + "/" + maxSetCard.ToString("000") : number.ToString("00") + "/" + maxSetCard.ToString("00");            
             else
-                return maxSetCard > 10 ? number.ToString("000") + "              " : number.ToString("00") + "              ";
+                return maxSetCard > 99 ? number.ToString("000") + "              " : number.ToString("00") + "              ";
         }
 
         static String DelCardFromTextSet(String text, Card card, int maxSetCard)
@@ -788,6 +773,8 @@ namespace ScryToMSE
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             if (args.Length == 0)
             {
                 String setCode = "ZNR";
