@@ -118,29 +118,6 @@ public class Card
         PrintNotNull(image_uris.png, "Картиночка");
         PrintNotNull(image_uris.art_crop, "Арт");
     }
-
-    public void Num(int number, int maxSetCard)
-    {
-
-        if (number <= maxSetCard)
-        {
-            if (number <= 9)
-                this.collector_number = "00" + number + "/" + maxSetCard;
-            else if (number <= 99)
-                this.collector_number = "0" + number + "/" + maxSetCard;
-            else
-                this.collector_number = number + "/" + maxSetCard;
-        }
-        else
-        {
-            if (number <= 9)
-                this.collector_number = "00" + number + "              ";
-            else if (number <= 99)
-                this.collector_number = "0" + number + "              ";
-            else
-                this.collector_number = number + "              ";
-        }
-    }
 }
 
 public class List
@@ -724,23 +701,9 @@ namespace ScryToMSE
         public static String GetNumberOfSet(int number, int maxSetCard)
         {
             if (number <= maxSetCard)
-            {
-                if (number <= 9)
-                    return "00" + number + "/" + maxSetCard;
-                else if (number <= 99)
-                    return "0" + number + "/" + maxSetCard;
-                else
-                    return number + "/" + maxSetCard;
-            }
+                return maxSetCard > 10 ? number.ToString("000") + "/" + maxSetCard.ToString("000") : number.ToString("00") + "/" + maxSetCard.ToString("00");            
             else
-            {
-                if (number <= 9)
-                    return "00" + number + "              ";
-                else if (number <= 99)
-                    return "0" + number + "              ";
-                else
-                    return number + "              ";
-            }
+                return maxSetCard > 10 ? number.ToString("000") + "              " : number.ToString("00") + "              ";
         }
 
         static String DelCardFromTextSet(String text, Card card, int maxSetCard)

@@ -18,11 +18,6 @@ namespace ScryToMSETests
         [TestMethod]
         public void TestMethod1()
         {
-            var a = new Card();
-            a.Num(1,2);
-            Assert.AreEqual(a.collector_number, "001/2");
-            a.Num(10, 395);
-            Assert.AreEqual(a.collector_number, "010/395");
             Assert.AreEqual(Program.GetNumberOfSet(1, 2), "001/2");
         }
 
