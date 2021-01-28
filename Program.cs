@@ -199,7 +199,7 @@ namespace ScryToMSE
             return res;
         }
 
-        static String GetText(string str, string oracle_str = null)
+        static String GetText(string str, string oracle_str = null, String tab = "\t\t")
         {
             String res = "";
             if (str != null)
@@ -208,7 +208,7 @@ namespace ScryToMSE
                 var numStr = (oracle_str != null) ? oracle_str.Split('\n').Length : str.Split('\n').Length;
                 if (text != null)
                     for (var i = 0; i < numStr; i++)
-                        res += "\t\t" + text[i].Replace("{", "<sym>").Replace("}", "</sym>").Trim() + Environment.NewLine;
+                        res += tab + text[i].Replace("{", "<sym>").Replace("}", "</sym>").Trim() + Environment.NewLine;
             }
             return res;       
         }
@@ -238,8 +238,6 @@ namespace ScryToMSE
                 }
             return res;
         }
-
-
 
         static String GetStyleCardString(Card card)
         {
@@ -321,25 +319,6 @@ namespace ScryToMSE
                     }                    
                     break;
             }
-            /*
-            if (card.type_line.IndexOf("Planeswalker") >= 0)
-            {
-                res += "m15-mainframe-planeswalker-ru" + Environment.NewLine;
-                res += "\thas styling: true" + Environment.NewLine;
-                res += "\tstyling data:" + Environment.NewLine;
-                switch (card.oracle_text.Split('\n').Length)
-                {
-                    case 4:
-                        res += "\t\tuse separate textboxes: four" + Environment.NewLine;
-                        break;
-                    default:
-                        res += "\t\tuse separate textboxes: three" + Environment.NewLine;
-                        break;
-                }
-                res += "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine;
-                res += "\t\toverlay:" + Environment.NewLine;
-            }
-            */
             return res;
         }
 
@@ -455,7 +434,7 @@ namespace ScryToMSE
                 return "\trarity: " + str + Environment.NewLine;
         }
 
-        static String GetRuleTextString(Card card)
+        public static String GetRuleTextString(Card card)
         {
             String rule = "";
             switch (card.layout)
@@ -476,17 +455,17 @@ namespace ScryToMSE
                             rule += card.lang == "en" ? GetText(card.oracle_text) : GetText(card.printed_text);
                             var level = 1;
                             var first = true;
-                            foreach (var str in GetText(card.printed_text).Split('\n'))
+                            foreach (var str in GetText(card.printed_text, null, "").Split('\n'))
                             {
                                 string loyalty_cost = null;
                                 string loyalty_text = null;
                                 if (str.Split(':').Length > 1)
                                 {
-                                    loyalty_cost = str.Split(':')[0];
+                                    loyalty_cost = str.Split(':')[0].Trim();
                                     for (var i = 1; i < str.Split(':').Length; i++) loyalty_text += str.Split(':')[i].Trim();
                                 }
                                 else
-                                    loyalty_text = str;
+                                    loyalty_text = str.Trim();
 
                                 if (first == true && loyalty_cost == null)
                                 {
@@ -509,7 +488,7 @@ namespace ScryToMSE
                                     }
                                 }
                             }
-                            Console.WriteLine(rule);
+                            rule = rule.Remove(rule.Length - 4);
                             break;
                         default:
                             rule += "\trule_text:" + Environment.NewLine;
