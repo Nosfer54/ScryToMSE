@@ -95,6 +95,7 @@ public class Card
     public String power;
     public String toughness;
     public String loyalty;
+    public Int32 loyalty_count;
     public String mana_cost;
     public String rarity;
     public String oracle_text;
@@ -199,17 +200,12 @@ namespace ScryToMSE
             return res;
         }
 
-        static String GetText(string str, string oracle_str = null, String tab = "\t\t")
+        static List<String> GetStrings(string str)
         {
-            String res = "";
+            var res = new List<String>();
             if (str != null)
-            {
-                String[] text = str.Split('\n');
-                var numStr = (oracle_str != null) ? oracle_str.Split('\n').Length : str.Split('\n').Length;
-                if (text != null)
-                    for (var i = 0; i < numStr; i++)
-                        res += tab + text[i].Replace("{", "<sym>").Replace("}", "</sym>").Trim() + Environment.NewLine;
-            }
+                foreach (var s in str.Split('\n'))
+                    res.Add(s.Trim().Replace("(", "<i-auto>(").Replace(")", ")</i-auto>"));
             return res;       
         }
 
@@ -239,63 +235,63 @@ namespace ScryToMSE
             return res;
         }
 
-        static String GetStyleCardString(Card card)
+        public static String GetStyleCardString(Card card)
         {
             String res = "\tstylesheet: ";
             switch (card.layout)
             {
                 case "modal_dfc":
-                    res += card.lang == "ru" ? "m15-mainframe-dfc-ru" : "m15-mainframe-dfc";
-                    res += Environment.NewLine;
-                    res += "\thas_styling: true" + Environment.NewLine;
-                    res += "\tstyling_data:" + Environment.NewLine;
-                    res += "\t\tother_options: use hovering pt, use holofoil stamps, unindent nonloyalty abilities, auto nyx crowns" + Environment.NewLine;
-                    res += "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine;
-                    res += "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font" + Environment.NewLine;
-                    res += "\t\toverlay:" + Environment.NewLine;
-                    res += "\textra_data:" + Environment.NewLine;
-                    res += "\t\tmagic-m15-mainframe-dfc-ru:" + Environment.NewLine;
-                    res += "\t\t\tcorner: " + card.card_faces[0].type_line.ToLower().Split('—')[0].Trim() + Environment.NewLine;
-                    res += "\t\t\tcorner_2: " + card.card_faces[1].type_line.ToLower().Split('—')[0].Trim() + Environment.NewLine;
-                    res += "\tnotes: Создано автоматически" + Environment.NewLine;
-                    res += "\ttime_created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
-                    res += "\ttime_modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
+                    res += card.lang == "ru" ? "m15-mainframe-dfc-ru\u000A" : "m15-mainframe-dfc\u000A";
+                    res += "\thas_styling: true" + "\u000A";
+                    res += "\tstyling_data:" + "\u000A";
+                    res += "\t\tother_options: use hovering pt, use holofoil stamps, unindent nonloyalty abilities, auto nyx crowns" + "\u000A";
+                    res += "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font" + "\u000A";
+                    res += "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font" + "\u000A";
+                    res += "\t\toverlay:" + "\u000A";
+                    res += "\textra_data:" + "\u000A";
+                    res += "\t\tmagic-m15-mainframe-dfc-ru:" + "\u000A";
+                    res += "\t\t\tcorner: " + card.card_faces[0].type_line.ToLower().Split('—')[0].Trim() + "\u000A";
+                    res += "\t\t\tcorner_2: " + card.card_faces[1].type_line.ToLower().Split('—')[0].Trim() + "\u000A";
+                    res += "\tnotes: Создано автоматически" + "\u000A";
+                    res += "\ttime_created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
+                    res += "\ttime_modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
                     break;
                 case "adventure":
-                    res += "m15-adventure-ru" + Environment.NewLine;
-                    res += "\thas styling: true" + Environment.NewLine;
-                    res += "\tstyling data:" + Environment.NewLine;
-                    res += "\t\tchop main: " + Environment.NewLine;
-                    res += "\t\tshrink name text: " + Environment.NewLine;
+                    res += "m15-adventure-ru" + "\u000A";
+                    res += "\thas styling: true" + "\u000A";
+                    res += "\tstyling data:" + "\u000A";
+                    res += "\t\tchop main: " + "\u000A";
+                    res += "\t\tshrink name text: " + "\u000A";
                     if (card.frame_effects != null)
                         foreach (var str in card.frame_effects)
-                            if (str == "showcase") res += "\t\tframes: Spotlight" + Environment.NewLine;
-                            else res += "\t\tframes: " + Environment.NewLine;
-                    res += "\t\tauto frames: " + Environment.NewLine;
-                    res += "\t\tother options: " + Environment.NewLine;
-                    res += "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine;
-                    res += "\t\tpromo: no" + Environment.NewLine;
-                    res += "\t\toverlay: " + Environment.NewLine;
+                            if (str == "showcase") res += "\t\tframes: Spotlight" + "\u000A";
+                            else res += "\t\tframes: " + "\u000A";
+                    res += "\t\tauto frames: " + "\u000A";
+                    res += "\t\tother options: " + "\u000A";
+                    res += "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + "\u000A";
+                    res += "\t\tpromo: no" + "\u000A";
+                    res += "\t\toverlay: " + "\u000A";
                     break;
                 default:
                     switch (card.type_line.Split('—')[0].Trim())
                     {
                         case "Legendary Planeswalker":
                             res += card.lang == "ru" ? "m15-mainframe-planeswalker-ru" : "m15-mainframe-planeswalker-ru";
-                            res += Environment.NewLine;
-                            res += "\tnotes: Создано автоматически" + Environment.NewLine;
-                            res += "\ttime_created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
-                            res += "\ttime_modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
-                            res += "\thas_styling: true" + Environment.NewLine;
-                            res += "\tstyling data:" + Environment.NewLine;
-                            res += "\t\tКоличество_полей_способностей: Три" + Environment.NewLine;
+                            res += "\u000A";
+                            res += "\tnotes: Создано автоматически" + "\u000A";
+                            res += "\ttime_created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
+                            res += "\ttime_modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
+                            res += "\thas_styling: true" + "\u000A";
+                            res += "\tstyling data:" + "\u000A";
+                            res += "\t\tКоличество_полей_способностей: Три" + "\u000A";
                             break;
                         default:
-                            res += "m15-altered-ru" + Environment.NewLine;
-                            res += "\thas styling: true" + Environment.NewLine;
-                            res += "\tstyling data:" + Environment.NewLine;
-                            res += "\t\tchop top: 7" + Environment.NewLine;
-                            res += "\t\tchop bottom: 7" + Environment.NewLine;
+                            res += card.lang == "ru" ? "m15-altered-ru\u000A" : "m15-altered\u000A";
+                            res += "\tstylesheet_version: 2020-09-04\u000a";
+                            res += "\thas_styling: true\u000A";
+                            res += "\tstyling_data:\u000A";
+                            res += "\t\tchop_top: 7\u000A";
+                            res += "\t\tchop_bottom: 7\u000A";
 
                             if (card.frame_effects != null)
                             {
@@ -306,15 +302,16 @@ namespace ScryToMSE
                                     if (str == "legendary") res += "legend, ";
                                     if (str == "inverted") res += "fnm promo, ";
                                 }
-                                res += "\t\tframes: " + Environment.NewLine;
+                                res += "\t\tframes: " + "\u000A";
                             }
 
-                            res += "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine;
-                            res += "\t\tinverted common symbol: no" + Environment.NewLine;
-                            res += "\t\toverlay:" + Environment.NewLine;
-                            res += "\tnotes: Создано автоматически" + Environment.NewLine;
-                            res += "\ttime created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
-                            res += "\ttime modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + Environment.NewLine;
+                            res += "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font\u000A";
+                            res += "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font\u000A";
+                            res += "\t\tinverted_common_symbol: no\u000A";
+                            res += "\t\toverlay: \u000A";
+                            res += "\tnotes: Создано автоматически\u000A";
+                            res += "\ttime_created: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
+                            res += "\ttime_modified: " + DateTime.Now.ToString("u").Remove(DateTime.Today.ToString("u").Length - 1) + "\u000A";
                             break;
                     }                    
                     break;
@@ -322,21 +319,21 @@ namespace ScryToMSE
             return res;
         }
 
-        static String GetColorCardString(Card card)
+        public static String GetColorCardString(Card card)
         {
-            String res = "\tcard color: ";
+            String res = "\tcard_color: ";
 
             switch (card.layout)
             {
                 case "modal_dfc":
-                    res += GetColor(card.card_faces[0].type_line, card.card_faces[0].colors) + Environment.NewLine;
+                    res += GetColor(card.card_faces[0].type_line, card.card_faces[0].colors) + "\u000A";
                     res += "\tcard_color_2: " + GetColor(card.card_faces[1].type_line, card.card_faces[1].colors, card.card_faces[1].oracle_text);
                     break;
                 default:
                     res += GetColor(card.type_line, card.colors, card.oracle_text);
                     break;
             }
-            return res + Environment.NewLine;
+            return res + "\u000A";
         }
 
         public static String GetNameSting(Card card)
@@ -346,36 +343,36 @@ namespace ScryToMSE
             {
                 case "modal_dfc":
                     res += card.lang == "en" ? card.card_faces[0].name : card.card_faces[0].printed_name;
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     res += "\tname_2: <b>";
                     res += card.lang == "en" ? card.card_faces[1].name : card.card_faces[1].printed_name;
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     break;
                 case "adventure":
                     res += card.lang == "en" ? card.card_faces[0].name : card.card_faces[0].printed_name;
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     break;
                 default:
                     res += card.lang == "en" ? card.name : card.printed_name;
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     break;
             }
             return res;
         }
 
-        static String GetCastingCost(Card card)
+        public static String GetCastingCost(Card card)
         {
             switch (card.layout)
             {
                 case "modal_dfc":
-                    return "\tcasting_cost: " + card.card_faces[0].mana_cost + Environment.NewLine +
-                        "\tcasting_cost_2: " + card.card_faces[1].mana_cost + Environment.NewLine;
+                    return "\tcasting_cost: " + card.card_faces[0].mana_cost + "\u000A" +
+                        "\tcasting_cost_2: " + card.card_faces[1].mana_cost + "\u000A";
                 default:
-                    return "\tcasting_cost: " + card.mana_cost + Environment.NewLine;
+                    return "\tcasting_cost: " + card.mana_cost.Trim().Replace("{", "").Replace("}","") + "\u000A";
             }
         }
 
-        static String GetTypesString(Card card)
+        public static String GetTypesString(Card card)
         {
             String res = "";
             switch (card.layout)
@@ -383,43 +380,43 @@ namespace ScryToMSE
                 case "modal_dfc":
                     res += "\tsuper type: <b>";
                     res += card.lang == "en" ? card.card_faces[0].type_line.Split('—')[0].Trim() : card.card_faces[0].printed_type_line.Split('—')[0].Trim();
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     if (card.card_faces[0].type_line.Split('—').Length > 1)
                     {
                         res += "\tsub type: <b>";
                         res += card.lang == "en" ? card.card_faces[0].type_line.Split('—')[1].Trim() : card.card_faces[0].printed_type_line.Split('—')[1].Trim();
-                        res += "</b>" + Environment.NewLine;
+                        res += "</b>" + "\u000A";
                     }
                     res += "\tsuper type 2: <b>";
                     res += card.lang == "en" ? card.card_faces[1].type_line.Split('—')[0].Trim() : card.card_faces[1].printed_type_line.Split('—')[0].Trim();
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     if (card.card_faces[1].type_line.Split('—').Length > 1)
                     {
                         res += "\tsub type 2: <b>";
                         res += card.lang == "en" ? card.card_faces[1].type_line.Split('—')[1].Trim() : card.card_faces[1].printed_type_line.Split('—')[1].Trim();
-                        res += "</b>" + Environment.NewLine;
+                        res += "</b>" + "\u000A";
                     }
                     break;
                 case "adventure":
                     res += "\tsuper type: <b>";
                     res += card.lang == "en" ? card.card_faces[0].type_line.Split('—')[0].Trim() : card.card_faces[0].printed_type_line.Split('—')[0].Trim();
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b>" + "\u000A";
                     if (card.card_faces[0].type_line.Split('—').Length > 1)
                     {
                         res += "\tsub type: <b>";
                         res += card.lang == "en" ? card.card_faces[0].type_line.Split('—')[1].Trim() : card.card_faces[0].printed_type_line.Split('—')[1].Trim();
-                        res += "</b>" + Environment.NewLine;
+                        res += "</b>" + "\u000A";
                     }
                     break;
                 default:
-                    res += "\tsuper type: <b>";
+                    res += "\tsuper_type: <word-list-type><b>";
                     res += card.lang == "en" ? card.type_line.Split('—')[0].Trim() : card.printed_type_line.Split('—')[0].Trim();
-                    res += "</b>" + Environment.NewLine;
+                    res += "</b></word-list-type>" + "\u000A";
                     if (card.type_line.Split('—').Length > 1)
                     {
-                        res += "\tsub type: <b>";
+                        res += "\tsub_type: <word-list-race><b>";
                         res += card.lang == "en" ? card.type_line.Split('—')[1].Trim() : card.printed_type_line.Split('—')[1].Trim();
-                        res += "</b>" + Environment.NewLine;
+                        res += "</b></word-list-race>" + "\u000A";
                     }
                     break;
             }
@@ -429,9 +426,9 @@ namespace ScryToMSE
         static String GetRarityString(String str)
         {
             if (str == "mythic")
-                return "\trarity: mythic rare" + Environment.NewLine;
+                return "\trarity: mythic rare" + "\u000A";
             else
-                return "\trarity: " + str + Environment.NewLine;
+                return "\trarity: " + str + "\u000A";
         }
 
         public static String GetRuleTextString(Card card)
@@ -440,59 +437,62 @@ namespace ScryToMSE
             switch (card.layout)
             {
                 case "modal_dfc":
-                    rule += "\trule_text:" + Environment.NewLine;
-                    rule += card.lang == "en" ? 
-                        GetText(card.card_faces[0].oracle_text) : 
-                            GetText(card.card_faces[0].printed_text, card.card_faces[0].oracle_text);
-                    rule += "\trule_text_2:" + Environment.NewLine;
-                    rule += card.lang == "en" ? GetText(card.card_faces[1].oracle_text) : GetText(card.card_faces[1].printed_text, card.card_faces[1].oracle_text);
+                    rule += "\trule_text:" + "\u000A";
+                    rule += card.lang == "en" ?
+                        GetStrings(card.card_faces[0].oracle_text) :
+                            GetStrings(card.card_faces[0].printed_text);
+                    rule += "\trule_text_2:" + "\u000A";
+                    rule += card.lang == "en" ? GetStrings(card.card_faces[1].oracle_text) : GetStrings(card.card_faces[1].printed_text);
                     break;
                 default:
                     switch (card.type_line.Split('—')[0].Trim())
-                    {
+                    {/*
                         case "Legendary Planeswalker":
-                            rule += "\tspecial_text:" + Environment.NewLine;
-                            rule += card.lang == "en" ? GetText(card.oracle_text) : GetText(card.printed_text);
-                            var level = 1;
-                            var first = true;
-                            foreach (var str in GetText(card.printed_text, null, "").Split('\n'))
-                            {
-                                string loyalty_cost = null;
-                                string loyalty_text = null;
-                                if (str.Split(':').Length > 1)
-                                {
-                                    loyalty_cost = str.Split(':')[0].Trim();
-                                    for (var i = 1; i < str.Split(':').Length; i++) loyalty_text += str.Split(':')[i].Trim();
-                                }
-                                else
-                                    loyalty_text = str.Trim();
+                            rule += "\tspecial_text:" + "\u000A";
+                            rule += card.lang == "en" ? GetStrings(card.oracle_text) : GetStrings(card.printed_text);
+                            var levels = new List<string>();
 
-                                if (first == true && loyalty_cost == null)
-                                {
-                                    first = false;
-                                    rule += "\tlevel_" + level + "_text: " + Environment.NewLine;
-                                    rule += "\t\t" + loyalty_text + Environment.NewLine;
-                                }
+                            Console.WriteLine(GetStrings(card.printed_text));
+
+                            foreach (var str in GetStrings(card.printed_text))
+                                if (str.Split(':').Length > 1 || levels.Count == 0)
+                                    levels.Add(str + "\u000A");
                                 else
-                                {
-                                    if (loyalty_cost != null)
-                                    {
-                                        level++;
-                                        rule += "\tloyalty_cost_" + level + ": " + loyalty_cost + Environment.NewLine;
-                                        rule += "\tlevel_" + level + "_text: " + Environment.NewLine;
-                                        rule += "\t\t" + loyalty_text + Environment.NewLine;
-                                    }
-                                    else
-                                    {
-                                        rule += "\t\t" + loyalty_text + Environment.NewLine;
-                                    }
-                                }
+                                    levels[levels.Count - 1] =  "\t\t" + str + "\u000A";
+                            
+                            foreach (var l in levels)
+                            {
+                                Console.WriteLine(l);
+                                Console.ReadKey();
                             }
+
+                            for (var i = 0; i < levels.Count; i++)
+                            {
+                                if (levels[i].Substring(0, 4).IndexOf(':') >= 1)
+                                    rule += "\tloyalty_cost_" + (i + 1) + ": " + levels[i].Split(':')[0].Trim() + "\u000A";
+                                rule += "\tlevel_" + (i + 1) + "_text: " + "\u000A";
+
+                                if (levels[i].Split(':').Length > 2)
+                                    for (var j = 1; j < levels[i].Split(':').Length; i++)
+                                        rule += "\t\t" + levels[i].Split(':')[j].Trim() + "\u000A";
+                                else if (levels[i].Split(':').Length == 2)
+                                    rule += "\t\t" + levels[i].Split(':')[1].Trim() + "\u000A";
+                                else
+                                    rule += "\t\t" + levels[i].Split(':')[0].Trim() + "\u000A";
+                            }
+
                             rule = rule.Remove(rule.Length - 4);
-                            break;
+                            break;*/
                         default:
-                            rule += "\trule_text:" + Environment.NewLine;
-                            rule += card.lang == "en" ? GetText(card.oracle_text) : GetText(card.printed_text);
+                            rule += "\trule_text:\u000A";
+                            switch (card.lang)
+                            {
+                                case "ru":
+                                    if (GetStrings(card.printed_text).Count == 1) rule = rule.Remove(11) + " " + GetStrings(card.printed_text)[0] + "\u000A";
+                                    else foreach (var s in GetStrings(card.printed_text)) rule += "\t\t" + s + "\u000A"; break;
+                                default:
+                                    foreach (var s in GetStrings(card.oracle_text)) rule += "\t\t" + s + "\u000A"; break;
+                            }
                             break;
                     }
                     break;
@@ -500,28 +500,43 @@ namespace ScryToMSE
             return rule;
         }
 
-        static String GetFlavorTextString(Card card)
+        public static String GetFlavorTextString(Card card)
         {
-            String res = "\tflavor text:" + Environment.NewLine;
+            String res = "\tflavor_text:";
             switch (card.layout)
             {
                 case "modal_dfc":
                     if (card.card_faces[0].flavor_text != null)
                         foreach (var a in card.card_faces[0].flavor_text.Split('\n'))
-                            res += "\t\t" + a.Replace("*", "</i>") + Environment.NewLine;
+                            res += "\t\t" + a.Replace("*", "</i>") + "\u000A";
                     if (card.card_faces[1].flavor_text != null)
                     {
-                        res += "\tflavor_text_2:" + Environment.NewLine;
+                        res += "\tflavor_text_2:" + "\u000A";
                         foreach (var a in card.card_faces[1].flavor_text.Split('\n'))
-                            res += "\t\t" + a.Replace("*", "</i>") + Environment.NewLine;
+                            res += "\t\t" + a.Replace("*", "</i>") + "\u000A";
                     }
                     break;
                 default:
                     if (card.flavor_text != null)
-                        foreach (var a in card.flavor_text.Split('\n'))
-                            res += "\t\t" + a.Replace("*", "</i>") + Environment.NewLine;
+                    {
+                        if (GetStrings(card.flavor_text).Count == 1) res += " <i-flavor>" + GetStrings(card.flavor_text)[0];
+                        else
+                        {
+                            for (var i = 0; i < GetStrings(card.flavor_text).Count - 1; i++)
+                                switch (i)
+                                {
+                                    case 0: res += "\u000A\t\t<i-flavor>" + GetStrings(card.flavor_text)[i] + "<soft-line>\u000A"; break;
+                                    default: res += "\t\t</soft-line>" + GetStrings(card.flavor_text)[i] + "<soft-line>\u000A"; break;
+                                }
+                            res += "\t\t</soft-line>" + GetStrings(card.flavor_text)[GetStrings(card.flavor_text).Count - 1];
+                        }
+                    } else
+                        res += " <i-flavor>";
                     break;
             }
+            res += "</i-flavor>\u000A";
+
+            Console.WriteLine(res);
             return res;
         }
 
@@ -547,13 +562,13 @@ namespace ScryToMSE
                         res += "\twatermark: mana symbol green";
                         break;
                 }
-            if (res == "") return null; else return res + Environment.NewLine; 
+            if (res == "") return null; else return res + "\u000A"; 
         }
                
         static String GetCardText(Card card, int maxSetCard)
         {
             Console.WriteLine(GetNumberOfSet(Convert.ToInt32(card.collector_number), maxSetCard));
-            String res = "card:" + Environment.NewLine;
+            String res = "card:" + "\u000A";
             res += GetStyleCardString(card);
             res += GetColorCardString(card);
             res += GetNameSting(card);
@@ -561,11 +576,11 @@ namespace ScryToMSE
             switch (card.layout)
             {
                 case "modal_dfc":
-                    res += "\timage: image" + card.card_faces[0].image_name + Environment.NewLine;
-                    res += "\timage_2: image" + card.card_faces[1].image_name + Environment.NewLine;
+                    res += "\timage: image" + card.card_faces[0].image_name + "\u000A";
+                    res += "\timage_2: image" + card.card_faces[1].image_name + "\u000A";
                     break;
                 default:
-                    res += "\timage: image" + card.collector_number + Environment.NewLine;
+                    res += "\timage: image" + card.collector_number + "\u000A";
                     break;
             }            
             res += GetTypesString(card);
@@ -576,19 +591,19 @@ namespace ScryToMSE
             switch (card.layout)
             {
                 case "modal_dfc":
-                    if (card.card_faces[0].power != null) res += "\tpower: <b>" + card.card_faces[0].power + Environment.NewLine;
-                    if (card.card_faces[0].toughness != null) res += "\ttoughness: <b>" + card.card_faces[0].toughness + Environment.NewLine;
-                    if (card.card_faces[1].power != null) res += "\tpower_2: <b>" + card.card_faces[1].power + Environment.NewLine;
-                    if (card.card_faces[1].toughness != null) res += "\ttoughness_2: <b>" + card.card_faces[1].toughness + Environment.NewLine;
+                    if (card.card_faces[0].power != null) res += "\tpower: <b>" + card.card_faces[0].power + "\u000A";
+                    if (card.card_faces[0].toughness != null) res += "\ttoughness: <b>" + card.card_faces[0].toughness + "\u000A";
+                    if (card.card_faces[1].power != null) res += "\tpower_2: <b>" + card.card_faces[1].power + "\u000A";
+                    if (card.card_faces[1].toughness != null) res += "\ttoughness_2: <b>" + card.card_faces[1].toughness + "\u000A";
                     break;
                 default:
-                    if (card.power != null) res += "\tpower: <b>" + card.power + "</b>" + Environment.NewLine;
-                    if (card.toughness != null) res += "\ttoughness: " + card.toughness + Environment.NewLine;
+                    if (card.power != null) res += "\tpower: <b>" + card.power + "</b>" + "\u000A";
+                    if (card.toughness != null) res += "\ttoughness: " + card.toughness + "\u000A";
                     break;
             }
-            if (card.loyalty != null) res += "\tloyalty: " + card.loyalty + Environment.NewLine;
-            res += "\tcustom card number: " + GetNumberOfSet(Convert.ToInt32(card.collector_number), maxSetCard) + Environment.NewLine;
-            res += "\tillustrator: " + card.artist + Environment.NewLine;
+            if (card.loyalty != null) res += "\tloyalty: " + card.loyalty + "\u000A";
+            res += "\tcustom card number: " + GetNumberOfSet(Convert.ToInt32(card.collector_number), maxSetCard) + "\u000A";
+            res += "\tillustrator: " + card.artist + "\u000A";
             return res;
         }
 
@@ -613,25 +628,25 @@ namespace ScryToMSE
                     if (!Directory.Exists(path + set.code.ToUpper())) Directory.CreateDirectory(path + set.code.ToUpper());
                     if (!File.Exists(path + set.code.ToUpper() + @"\set"))
                         File.AppendAllText(path + set.code.ToUpper() + @"\set",
-                            "mse_version: 2.0.2" + Environment.NewLine +
-                            "game: magic" + Environment.NewLine +
-                            "stylesheet: m15-altered" + Environment.NewLine +
-                            "stylesheet_version: 2020-09-04" + Environment.NewLine +
-                            "set_info:" + Environment.NewLine +
-                                "\ttitle: " + set.name + Environment.NewLine +
-                                "\tcopyright: ™ & © Wizards of the Coast" + Environment.NewLine +
-                                "\tset code: " + set.code.ToUpper() + Environment.NewLine +
-                                "\tautomatic card numbers: no" + Environment.NewLine +
-                                "\tcard_language: Russian" + Environment.NewLine +
-                            "styling:" + Environment.NewLine +
-                                "\tmagic-m15-altered:" + Environment.NewLine +
-                                    "\t\tcolor indicator dot: no" + Environment.NewLine +
-                                    "\t\tgrey hybrid name: yes" + Environment.NewLine +
-                                    "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine +
-                                    "\t\toverlay:" + Environment.NewLine +
-                            "version_control:" + Environment.NewLine +
-                                "\ttype: none" + Environment.NewLine +
-                            "apprentice_code:" + Environment.NewLine);
+                            "mse_version: 2.0.2\u000A" +
+                            "game: magic" + "\u000A" +
+                            "stylesheet: m15-altered" + "\u000A" +
+                            "stylesheet_version: 2020-09-04" + "\u000A" +
+                            "set_info:" + "\u000A" +
+                                "\ttitle: " + set.name + "\u000A" +
+                                "\tcopyright: ™ & © Wizards of the Coast" + "\u000A" +
+                                "\tset code: " + set.code.ToUpper() + "\u000A" +
+                                "\tautomatic card numbers: no" + "\u000A" +
+                                "\tcard_language: Russian" + "\u000A" +
+                            "styling:" + "\u000A" +
+                                "\tmagic-m15-altered:" + "\u000A" +
+                                    "\t\tcolor_indicator_dot: no" + "\u000A" +
+                                    "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font" + "\u000A" +
+                                    "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font" + "\u000A" +
+                                    "\t\toverlay:" + "\u000A" +
+                            "version_control:" + "\u000A" +
+                                "\ttype: none" + "\u000A" +
+                            "apprentice_code:" + "\u000A");
                 }
                 if (delSetFile && File.Exists(path + set.code.ToUpper() + ".mse-set")) File.Delete(path + set.code.ToUpper() + ".mse-set");                
             }
@@ -640,25 +655,25 @@ namespace ScryToMSE
                 if (!Directory.Exists(path + set.code.ToUpper())) Directory.CreateDirectory(path + set.code.ToUpper());
                 if (!File.Exists(path + set.code.ToUpper() + @"\set"))
                     File.AppendAllText(path + set.code.ToUpper() + @"\set",
-                        "mse_version: 2.0.2" + Environment.NewLine +
-                        "game: magic" + Environment.NewLine +
-                        "stylesheet: m15-altered" + Environment.NewLine +
-                        "stylesheet_version: 2020-09-04" + Environment.NewLine +
-                        "set_info:" + Environment.NewLine +
-                            "\ttitle: " + set.name + Environment.NewLine +
-                            "\tcopyright: ™ & © Wizards of the Coast" + Environment.NewLine +
-                            "\tset code: " + set.code.ToUpper() + Environment.NewLine +
-                            "\tautomatic card numbers: no" + Environment.NewLine +
-                            "\tcard_language: Russian" + Environment.NewLine +
-                        "styling:" + Environment.NewLine +
-                            "\tmagic-m15-altered:" + Environment.NewLine +
-                                "\t\tcolor indicator dot: no" + Environment.NewLine +
-                                "\t\tgrey hybrid name: yes" + Environment.NewLine +
-                                "\t\ttext box mana symbols: magic-mana-small.mse-symbol-font" + Environment.NewLine +
-                                "\t\toverlay:" + Environment.NewLine +
-                        "version_control:" + Environment.NewLine +
-                            "\ttype: none" + Environment.NewLine +
-                        "apprentice_code:" + Environment.NewLine);
+                        "mse_version: 2.0.2\u000A" +
+                        "game: magic" + "\u000A" +
+                        "stylesheet: m15-altered" + "\u000A" +
+                        "stylesheet_version: 2020-09-04" + "\u000A" +
+                        "set_info:" + "\u000A" +
+                            "\ttitle: " + set.name + "\u000A" +
+                            "\tcopyright: ™ & © Wizards of the Coast" + "\u000A" +
+                            "\tset code: " + set.code.ToUpper() + "\u000A" +
+                            "\tautomatic card numbers: no" + "\u000A" +
+                            "\tcard_language: Russian" + "\u000A" +
+                        "styling:" + "\u000A" +
+                            "\tmagic-m15-altered:" + "\u000A" +
+                                "\t\tcolor_indicator_dot: no" + "\u000A" +
+                                "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font" + "\u000A" +
+                                "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font" + "\u000A" +
+                                "\t\toverlay:" + "\u000A" +
+                        "version_control:" + "\u000A" +
+                            "\ttype: none" + "\u000A" +
+                        "apprentice_code:" + "\u000A");
             }       
         }
 
@@ -745,9 +760,20 @@ namespace ScryToMSE
         /// <param name="delDirSet">Маркер удаления файлов сета. По-умолчанию false - не удалять файлы сета</param>
         static void CreateFileSet(Set set, String path = "", Boolean delDirSet = false)
         {
-            if (File.Exists(path + set.code.ToUpper() + ".mse-set")) File.Delete(path + set.code.ToUpper() + ".mse-set");
-            ZipFile.CreateFromDirectory(path + set.code.ToUpper(), path + set.code.ToUpper() + ".mse-set");
-            if (delDirSet) Directory.Delete(path + set.code.ToUpper(), true);
+            try
+            {
+                if (File.Exists(path + set.code.ToUpper() + ".mse-set")) File.Delete(path + set.code.ToUpper() + ".mse-set");
+                ZipFile.CreateFromDirectory(path + set.code.ToUpper(), path + set.code.ToUpper() + ".mse-set");
+                if (delDirSet) Directory.Delete(path + set.code.ToUpper(), true);
+            }
+            catch
+            {
+                Console.WriteLine("Файл то закрой...");
+                Console.ReadKey();
+                if (File.Exists(path + set.code.ToUpper() + ".mse-set")) File.Delete(path + set.code.ToUpper() + ".mse-set");
+                ZipFile.CreateFromDirectory(path + set.code.ToUpper(), path + set.code.ToUpper() + ".mse-set");
+                if (delDirSet) Directory.Delete(path + set.code.ToUpper(), true);
+            }
         }
 
         static void Main(string[] args)
@@ -765,9 +791,9 @@ namespace ScryToMSE
 
                 var cards = new List<Card>();
 
-                for (var i = 63; i <= 63; i++)
+                for (var i = 1; i <= 63; i++)
                     cards.Add(GetCard(setCode, i, "ru"));
-                
+
                 AddCardsToSet(cards, set.unique_card, "", true);
                 CreateFileSet(set, "", false);
                 Console.WriteLine("тык...");
