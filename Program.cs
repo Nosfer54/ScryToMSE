@@ -535,8 +535,6 @@ namespace ScryToMSE
                     break;
             }
             res += "</i-flavor>\u000A";
-
-            Console.WriteLine(res);
             return res;
         }
 
@@ -791,7 +789,7 @@ namespace ScryToMSE
 
                 var cards = new List<Card>();
 
-                for (var i = 1; i <= 63; i++)
+                for (var i = 12; i <= 12; i++)
                     cards.Add(GetCard(setCode, i, "ru"));
 
                 AddCardsToSet(cards, set.unique_card, "", true);
