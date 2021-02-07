@@ -173,6 +173,7 @@ namespace ScryToMSE
                             res.printed_text = c.printed_text;
                             res.flavor_text = c.flavor_text;
                             res.printed_type_line = c.printed_type_line;
+                            res.type_line = c.type_line;
                             res.card_faces = c.card_faces;
                             res.lang = c.lang;
                         }
@@ -205,10 +206,29 @@ namespace ScryToMSE
             var res = new List<String>();
             if (str != null)
                 foreach (var s in str.Split('\n'))
-                    res.Add(s.Trim().Replace("(", "<i-auto>(").Replace(")", ")</i-auto>"));
+                    res.Add(s.Trim().Replace("(", "<i-auto>(").Replace(")", ")</i-auto>").Replace("{", "<sym>").Replace("}", "</sym>").Replace("Землепад", "<i>Землепад</i>"));
             return res;       
         }
 
+        static String GetTextString(String key, List<String> text, Int32 CountString, Boolean softLine = false)
+        {
+            var res = "\t" + key + ":\u000A";
+            if (!softLine)
+                if (text.Count > 0)
+                    if (CountString == 1) res = res.Remove(res.Length - 1) + " " + text[0] + "\u000A";
+                    else for (var i = 0; i < CountString; i++) res += "\t\t" + text[i] + "\u000A";
+            if (softLine)
+                if (text.Count > 0)
+                    if (CountString == 1) res = res.Remove(res.Length - 1) + " <i-flavor>" + text[0] + "</i-flavor>\u000A";
+                    else for (var i = 0; i < CountString; i++)
+                        {
+                            res += (i == 0) ? "\t\t<i-flavor>" + text[i] : "\t\t</soft-line>" + text[i];
+                            res += (i == CountString - 1) ? "</i-flavor>\u000A" : "<soft-line>\u000A";
+                        }
+            if (softLine && text.Count == 0) res = res.Remove(res.Length - 1) + " <i-flavor></i-flavor>\u000A";
+            return res;
+        }
+        
         static String GetColor(String type, String[] colors, String text = null)
         {
             String res = "";
@@ -219,7 +239,7 @@ namespace ScryToMSE
             {
                 if (s == "W") res += "white, ";
                 if (s == "U") res += "blue, ";
-                if (s == "D") res += "black, ";
+                if (s == "B") res += "black, ";
                 if (s == "R") res += "red, ";
                 if (s == "G") res += "green, ";
             }
@@ -228,7 +248,7 @@ namespace ScryToMSE
                 {
                     if (a.Split('}')[0] == "W") res += "white, ";
                     if (a.Split('}')[0] == "U") res += "blue, ";
-                    if (a.Split('}')[0] == "D") res += "black, ";
+                    if (a.Split('}')[0] == "B") res += "black, ";
                     if (a.Split('}')[0] == "R") res += "red, ";
                     if (a.Split('}')[0] == "G") res += "green, ";
                 }
@@ -242,8 +262,10 @@ namespace ScryToMSE
             {
                 case "modal_dfc":
                     res += card.lang == "ru" ? "m15-mainframe-dfc-ru\u000A" : "m15-mainframe-dfc\u000A";
+                    res += "\tstylesheet_version: 2020-09-04\u000A";
                     res += "\thas_styling: true" + "\u000A";
                     res += "\tstyling_data:" + "\u000A";
+                    res += "\t\tlevel_1_chop: -5,5,\u000A";
                     res += "\t\tother_options: use hovering pt, use holofoil stamps, unindent nonloyalty abilities, auto nyx crowns" + "\u000A";
                     res += "\t\ttext_box_mana_symbols: magic-mana-small.mse-symbol-font" + "\u000A";
                     res += "\t\tlevel_mana_symbols: magic-mana-large.mse-symbol-font" + "\u000A";
@@ -290,8 +312,8 @@ namespace ScryToMSE
                             res += "\tstylesheet_version: 2020-09-04\u000a";
                             res += "\thas_styling: true\u000A";
                             res += "\tstyling_data:\u000A";
-                            res += "\t\tchop_top: 7\u000A";
-                            res += "\t\tchop_bottom: 7\u000A";
+                            res += "\t\tchop_top: 5\u000A";
+                            res += "\t\tchop_bottom: 5\u000A";
 
                             if (card.frame_effects != null)
                             {
@@ -437,62 +459,57 @@ namespace ScryToMSE
             switch (card.layout)
             {
                 case "modal_dfc":
-                    rule += "\trule_text:" + "\u000A";
-                    rule += card.lang == "en" ?
-                        GetStrings(card.card_faces[0].oracle_text) :
-                            GetStrings(card.card_faces[0].printed_text);
-                    rule += "\trule_text_2:" + "\u000A";
-                    rule += card.lang == "en" ? GetStrings(card.card_faces[1].oracle_text) : GetStrings(card.card_faces[1].printed_text);
+                    switch (card.lang)
+                    {
+                        case "ru":
+                            rule += GetTextString("rule_text", GetStrings(card.card_faces[0].printed_text), GetStrings(card.card_faces[0].oracle_text).Count);
+                            rule += GetTextString("rule_text_2", GetStrings(card.card_faces[1].printed_text), GetStrings(card.card_faces[1].oracle_text).Count); break;
+                        default:
+                            rule += GetTextString("rule_text", GetStrings(card.card_faces[0].oracle_text), GetStrings(card.card_faces[0].oracle_text).Count);
+                            rule += GetTextString("rule_text_2", GetStrings(card.card_faces[1].oracle_text), GetStrings(card.card_faces[1].oracle_text).Count); break;
+                    }
                     break;
                 default:
                     switch (card.type_line.Split('—')[0].Trim())
-                    {/*
+                    {
                         case "Legendary Planeswalker":
-                            rule += "\tspecial_text:" + "\u000A";
-                            rule += card.lang == "en" ? GetStrings(card.oracle_text) : GetStrings(card.printed_text);
-                            var levels = new List<string>();
-
-                            Console.WriteLine(GetStrings(card.printed_text));
-
-                            foreach (var str in GetStrings(card.printed_text))
-                                if (str.Split(':').Length > 1 || levels.Count == 0)
-                                    levels.Add(str + "\u000A");
-                                else
-                                    levels[levels.Count - 1] =  "\t\t" + str + "\u000A";
-                            
-                            foreach (var l in levels)
-                            {
-                                Console.WriteLine(l);
-                                Console.ReadKey();
-                            }
-
-                            for (var i = 0; i < levels.Count; i++)
-                            {
-                                if (levels[i].Substring(0, 4).IndexOf(':') >= 1)
-                                    rule += "\tloyalty_cost_" + (i + 1) + ": " + levels[i].Split(':')[0].Trim() + "\u000A";
-                                rule += "\tlevel_" + (i + 1) + "_text: " + "\u000A";
-
-                                if (levels[i].Split(':').Length > 2)
-                                    for (var j = 1; j < levels[i].Split(':').Length; i++)
-                                        rule += "\t\t" + levels[i].Split(':')[j].Trim() + "\u000A";
-                                else if (levels[i].Split(':').Length == 2)
-                                    rule += "\t\t" + levels[i].Split(':')[1].Trim() + "\u000A";
-                                else
-                                    rule += "\t\t" + levels[i].Split(':')[0].Trim() + "\u000A";
-                            }
-
-                            rule = rule.Remove(rule.Length - 4);
-                            break;*/
-                        default:
-                            rule += "\trule_text:\u000A";
+                            rule += "";
                             switch (card.lang)
                             {
                                 case "ru":
-                                    if (GetStrings(card.printed_text).Count == 1) rule = rule.Remove(11) + " " + GetStrings(card.printed_text)[0] + "\u000A";
-                                    else foreach (var s in GetStrings(card.printed_text)) rule += "\t\t" + s + "\u000A"; break;
+                                    rule += GetTextString("special_text", GetStrings(card.printed_text), GetStrings(card.oracle_text).Count);
+
+                                    var levels = new List<string>();
+                                    foreach (var str in GetStrings(card.printed_text))
+                                        if (str.Split(':').Length > 1 || levels.Count == 0)
+                                            levels.Add(str + "\u000A");
+                                        else
+                                            levels[levels.Count - 1] += "\t\t" + str + "\u000A";
+
+                                    for (var i = 0; i < levels.Count; i++)
+                                    {
+                                        if (levels[i].Substring(0, 4).IndexOf(':') >= 1)
+                                            rule += "\tloyalty_cost_" + (i + 1) + ": " + levels[i].Split(':')[0].Trim().Replace('−', '-') + "\u000A";
+                                        rule += "\tlevel_" + (i + 1) + "_text: " + "\u000A";
+
+                                        if (levels[i].Split(':').Length > 2)
+                                            for (var j = 1; j < levels[i].Split(':').Length; i++)
+                                                rule += "\t\t" + levels[i].Split(':')[j].Trim() + "\u000A";
+                                        else if (levels[i].Split(':').Length == 2)
+                                            rule += "\t\t" + levels[i].Split(':')[1].Trim() + "\u000A";
+                                        else
+                                            rule += "\t\t" + levels[i].Split(':')[0].Trim() + "\u000A";
+                                    }
+                                    break;
                                 default:
-                                    foreach (var s in GetStrings(card.oracle_text)) rule += "\t\t" + s + "\u000A"; break;
-                            }
+                                    rule += GetTextString("special_text", GetStrings(card.oracle_text), GetStrings(card.oracle_text).Count);
+                                    break;
+                            } 
+                            break;
+                        default:
+                            rule += (card.lang == "ru") ? 
+                                GetTextString("rule_text", GetStrings(card.printed_text), GetStrings(card.oracle_text).Count) :
+                                GetTextString("rule_text", GetStrings(card.oracle_text), GetStrings(card.oracle_text).Count);
                             break;
                     }
                     break;
@@ -502,39 +519,17 @@ namespace ScryToMSE
 
         public static String GetFlavorTextString(Card card)
         {
-            String res = "\tflavor_text:";
+            String res = "";
             switch (card.layout)
             {
                 case "modal_dfc":
-                    if (card.card_faces[0].flavor_text != null)
-                        foreach (var a in card.card_faces[0].flavor_text.Split('\n'))
-                            res += "\t\t" + a.Replace("*", "</i>") + "\u000A";
-                    if (card.card_faces[1].flavor_text != null)
-                    {
-                        res += "\tflavor_text_2:" + "\u000A";
-                        foreach (var a in card.card_faces[1].flavor_text.Split('\n'))
-                            res += "\t\t" + a.Replace("*", "</i>") + "\u000A";
-                    }
+                    res += GetTextString("flavor_text", GetStrings(card.card_faces[0].flavor_text), GetStrings(card.card_faces[0].flavor_text).Count, true);
+                    res += GetTextString("flavor_text_2", GetStrings(card.card_faces[1].flavor_text), GetStrings(card.card_faces[1].flavor_text).Count, true);
                     break;
                 default:
-                    if (card.flavor_text != null)
-                    {
-                        if (GetStrings(card.flavor_text).Count == 1) res += " <i-flavor>" + GetStrings(card.flavor_text)[0];
-                        else
-                        {
-                            for (var i = 0; i < GetStrings(card.flavor_text).Count - 1; i++)
-                                switch (i)
-                                {
-                                    case 0: res += "\u000A\t\t<i-flavor>" + GetStrings(card.flavor_text)[i] + "<soft-line>\u000A"; break;
-                                    default: res += "\t\t</soft-line>" + GetStrings(card.flavor_text)[i] + "<soft-line>\u000A"; break;
-                                }
-                            res += "\t\t</soft-line>" + GetStrings(card.flavor_text)[GetStrings(card.flavor_text).Count - 1];
-                        }
-                    } else
-                        res += " <i-flavor>";
+                    res += GetTextString("flavor_text", GetStrings(card.flavor_text), GetStrings(card.flavor_text).Count, true);
                     break;
             }
-            res += "</i-flavor>\u000A";
             return res;
         }
 
@@ -789,7 +784,7 @@ namespace ScryToMSE
 
                 var cards = new List<Card>();
 
-                for (var i = 12; i <= 12; i++)
+                for (var i = 1; i <= 391; i++)
                     cards.Add(GetCard(setCode, i, "ru"));
 
                 AddCardsToSet(cards, set.unique_card, "", true);
